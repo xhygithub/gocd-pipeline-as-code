@@ -1,0 +1,46 @@
+#ci.gocd.yaml
+pipelines:
+  mysite-backend:
+    group: mysite
+    materials:
+      src:
+        git: git@xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.git
+        branch: master
+        shallow_clone: true
+    stages:
+      - test:
+          jobs:
+            unit-test:
+              tasks:
+                - exec:
+                    command: scripts/test.sh
+      - build-publish:
+          approval: success
+          jobs:
+            build_publish_image:
+              environment_variables:
+                DJANGO_SETTINGS_MODULE: "mysite.development"
+              tasks:
+                - exec:
+                    command: scripts/build_publish_image.sh
+      - deploy-dev:
+          approval: success
+          jobs:
+            deploy-dev:
+              tasks:
+                - script: scripts/migrate dev
+                - script: scripts/deploy dev
+      - deploy-qa:
+          approval: manual
+          jobs:
+            deploy-qa:
+              tasks:
+                - script: scripts/migrate qa
+                - script: scripts/deploy qa
+      - deploy-prod:
+          approval: manual
+          jobs:
+            deploy-prod:
+              tasks:
+                - script: scripts/migrate prod
+                - script: scripts/deploy prod

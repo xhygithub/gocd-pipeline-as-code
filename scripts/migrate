@@ -1,0 +1,13 @@
+#! /bin/bash
+set -e
+set -x
+
+ENV=${1:-test}
+tag=${GO_PIPELINE_LABEL:-local}
+
+repository="xxxxxxxxxxxxxx"
+app_image=${repository}/mysite/backend-dev:${tag}
+
+docker run --rm -e DJANGO_SETTINGS_MODULE=mysite.${ENV} ${app_image} python manage.py migrate
+
+echo "*************Migration has completed in [${ENV}]*************"

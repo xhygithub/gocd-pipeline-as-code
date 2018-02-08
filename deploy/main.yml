@@ -1,0 +1,11 @@
+---
+- hosts: Server
+  remote_user: mysite
+  become: yes
+  vars:
+    - image: nexus.xxxxxx.com.cn:xxx/mysite/web
+    - tag: latest
+    - app_name: mysite-web
+    - logstash_address: udp://xxxxxxx.xxxx.xxxxx:xxxxx
+  roles:
+    - deploy

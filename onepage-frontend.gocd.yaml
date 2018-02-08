@@ -1,0 +1,42 @@
+#ci.gocd.yaml
+pipelines:
+  mysite-frontend:
+    group: mysite
+    materials:
+      src:
+        git: git@xxxxxxxxxxxxxxxxx.git
+        branch: master
+        shallow_clone: true
+    stages:
+      - test-build-publish:
+          approval: success
+          jobs:
+            unit-test:
+              tasks:
+                - exec:
+                    command: scripts-frontend/test
+            build-publish:
+              tasks:
+                - exec:
+                    command: scripts-frontend/publish_image
+      - deploy-dev:
+          approval: success
+          jobs:
+            deploy-dev:
+              tasks:
+                - script: |
+                    scripts-frontend/deploy dev
+      - deploy-qa:
+          approval: manual
+          jobs:
+            deploy-qa:
+              tasks:
+                - script: |
+                    scripts-frontend/deploy test
+      - deploy-prod:
+          approval: manual
+          jobs:
+            deploy-prod:
+              tasks:
+                - script: |
+                    scripts-frontend/deploy prod

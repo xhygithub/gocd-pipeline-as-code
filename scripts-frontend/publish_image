@@ -1,0 +1,20 @@
+#! /bin/bash
+set -e
+repository=nexus.xxxxxxxx.com.cn:5000
+yarn_image=${repository}/common/node-yarn:8.0
+
+tag=${GO_PIPELINE_LABEL:-local}
+app_image=${repository}/mysite/web-dev:${tag}
+app_test_image=${repository}/mysite/web-test:${tag}
+app_prod_image=${repository}/mysite/web-prod:${tag}
+
+docker run --rm -e "NODE_ENV=dev" -v $(pwd):/app -v /tmp/yarn:/yarn -w /app ${yarn_image} sh build.sh
+
+docker build --build-arg dist=public -t ${app_image} .
+docker push ${app_image}
+
+docker build --build-arg dist=public -t ${app_test_image} .
+docker push ${app_test_image}
+
+docker build --build-arg dist=public -t ${app_prod_image} .
+docker push ${app_prod_image}

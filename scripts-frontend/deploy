@@ -1,0 +1,7 @@
+#! /bin/bash
+set -e
+set -x
+
+env=${1:-test}
+export ANSIBLE_HOST_KEY_CHECKING=False
+ansible-playbook -i deploy/env/$env/inventory.ini --private-key /home/go/.ssh/mysite_key --vault-password-file /home/go/.vault_pass.txt -e tag=$GO_PIPELINE_LABEL deploy/main.yml

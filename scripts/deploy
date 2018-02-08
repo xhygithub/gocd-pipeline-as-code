@@ -1,0 +1,31 @@
+#! /bin/bash
+set -e
+set -x
+
+ENV=${1:-test}
+export ANSIBLE_HOST_KEY_CHECKING=False
+
+case $ENV in
+    dev)
+    echo "do nothing"
+    ;;
+    qa)
+      sed -i "s/mysite.dev/mysite.${ENV}/g" deploy/roles/deploy/tasks/main.yml
+    ;;
+    uat)
+      sed -i "s/mysite.dev/mysite.${ENV}/g" deploy/roles/deploy/tasks/main.yml
+    ;;
+    prod)
+      sed -i "s/mysite.dev/mysite.${ENV}/g" deploy/roles/deploy/tasks/main.yml
+    ;;
+  *)
+    exit 1
+        ;;
+esac
+  ansible-playbook -i deploy/env/${ENV}/inventory.ini --private-key /home/go/.ssh/mysite_key --vault-password-file /home/go/.vault_pass.txt -e tag=$GO_PIPELINE_LABEL deploy/main.yml
+
+
+echo "*************Deploy has completed in [${ENV}]*************"
+       
+
+

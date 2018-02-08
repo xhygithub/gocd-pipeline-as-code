@@ -1,0 +1,24 @@
+---
+
+- name: pull image
+  command: docker pull "{{image}}-{{env}}:{{tag}}"
+
+- name: kill old container
+  docker_container:
+    name: "{{app_name}}"
+    state: absent
+
+- name: start new service container
+  docker_container:
+    name:  "{{app_name}}"
+    image: "{{image}}-{{env}}:{{tag}}"
+    restart_policy: always
+    network_mode: host
+    ports:
+      - 0.0.0.0:8080:80
+    volumes:
+      - "/var/log/nginx:/var/log/nginx"
+    log_driver: gelf
+    log_options:
+      gelf-address: "{{logstash_address}}"
+      tag: "mysite^web^{{app_name}}^{{env}}^{{tag}}"
